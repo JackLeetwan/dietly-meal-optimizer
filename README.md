@@ -50,7 +50,23 @@ Zamienia posiłki do końca całego zamówienia bez pytania. Używaj rzadko — 
 make oceń-posiłki
 ```
 
-Wystawia maksymalną ocenę wszystkim dostarczonym posiłkom z historii zamówień.
+Wystawia maksymalną (pozytywną) ocenę każdemu posiłkowi ze wszystkich minionych dostaw na koncie.
+
+Skrypt iteruje po **wszystkich zamówieniach** na koncie (nie tylko tym z `OPTIDIET_ORDER_ID`) i ocenia każdy posiłek z dostaw, których data jest ≤ dzisiaj. Posiłki już wcześniej ocenione są pomijane.
+
+Przydatne jednorazowo po założeniu konta lub po dłuższej przerwie — masowo uzupełnia oceny zamiast klikać ręcznie w panelu.
+
+---
+
+### Ocenianie zamówień
+
+```
+make oceń-zamówienia
+```
+
+Wysyła publiczną recenzję 5/5 dla każdego zamówienia na koncie (estetyka, dostawa, jakość składników, opakowanie, smak, różnorodność). Zamówienia już ocenione są pomijane.
+
+Nie przetwarza żadnych dostaw — działa wyłącznie jako jednorazowe masowe wystawienie recenzji.
 
 ---
 
