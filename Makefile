@@ -1,19 +1,13 @@
 PY   = .venv/bin/python
-DAYS ?= 3
 
-.PHONY: sprawdź zastosuj wszystko tydzień miesiąc oceń-posiłki oceń-zamówienia
+.PHONY: sprawdź wszystko oceń-posiłki oceń-zamówienia
 
 sprawdź:
-	$(PY) main.py --days $(DAYS)
-
-tydzień:
-	$(PY) main.py --days 7
-
-miesiąc:
-	$(PY) main.py --all
-
-zastosuj:
-	$(PY) main.py --days $(DAYS) --apply
+	read -r -p "Ile dni sprawdzić? [3] " days; \
+	days=$${days:-3}; \
+	$(PY) main.py --days $$days; \
+	read -r -p "Czy zatwierdzić zmiany? [t/N] " ans; \
+	case "$$ans" in [tT]*) $(PY) main.py --days $$days --apply;; *) echo "Anulowano.";; esac
 
 wszystko:
 	$(PY) main.py --all --apply --yes
