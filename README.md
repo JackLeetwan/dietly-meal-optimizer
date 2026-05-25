@@ -6,35 +6,17 @@ Skrypt loguje się do panelu OptiDiet i zamienia posiłki na nadchodzące dni ta
 
 ## Użycie
 
-### Podgląd (nic nie zmienia)
+### Interaktywne (podgląd + opcjonalny zapis)
 
 ```
 make sprawdź
 ```
 
-Pokazuje propozycje na najbliższe 3 dni. Żadnych zmian w panelu.
-
-```
-make sprawdź DAYS=7
-```
-
-To samo, ale na 7 dni.
+Pyta o liczbę dni (domyślnie 3), pokazuje propozycje, a następnie: `Czy zatwierdzić zmiany? [t/N]`. Wpisz `t` żeby zapisać, Enter żeby pominąć.
 
 ---
 
-### Zastosowanie zmian
-
-```
-make zastosuj
-```
-
-Pyta o potwierdzenie dla każdego dnia (`t` = tak, Enter = pomiń).
-
-```
-make zastosuj DAYS=2
-```
-
-Tylko najbliższe 2 dni.
+### Zastosowanie wszystkich przyszłych dostaw
 
 ```
 make wszystko
