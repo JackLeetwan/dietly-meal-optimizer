@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from playwright.async_api import Playwright, APIRequestContext, Error as PlaywrightError
 
 import config
+from selector import Meal
 
 _RETRIES = 3
 _BACKOFF  = 1.5   # sekundy; mnożone przez 2^attempt
@@ -29,7 +30,6 @@ class ApiError(RuntimeError):
     def __init__(self, method: str, path: str, status: int, body: str):
         super().__init__(f"{method} {path} → HTTP {status}: {body}")
         self.status = status
-from selector import Meal
 
 API = "https://panel.dietly.pl/api"
 _H = {
@@ -80,9 +80,10 @@ class DietlyClient:
 
     async def _request(self, method: str, path: str, **kwargs):
         url = f"{API}{path}"
+        headers = kwargs.pop("headers", _H)
         for attempt in range(_RETRIES):
             try:
-                r = await getattr(self._ctx, method)(url, headers=_H, timeout=60000, **kwargs)
+                r = await getattr(self._ctx, method)(url, headers=headers, timeout=60000, **kwargs)
                 if r.ok:
                     return r
                 if r.status not in _RETRYABLE or attempt == _RETRIES - 1:
@@ -103,21 +104,12 @@ class DietlyClient:
         return await r.json() if r.status != 204 else None
 
     async def _post_json(self, path: str, payload: dict):
-        url = f"{API}{path}"
-        headers = {**_H, "content-type": "application/json"}
-        for attempt in range(_RETRIES):
-            try:
-                r = await self._ctx.post(url, data=_json.dumps(payload), headers=headers, timeout=60000)
-                if r.ok:
-                    return await r.json() if r.status != 204 else None
-                if r.status not in _RETRYABLE or attempt == _RETRIES - 1:
-                    raise ApiError("POST", path, r.status, await r.text())
-            except ApiError:
-                raise
-            except PlaywrightError:
-                if attempt == _RETRIES - 1:
-                    raise
-            await asyncio.sleep(_BACKOFF * (2 ** attempt))
+        r = await self._request(
+            "post", path,
+            headers={**_H, "content-type": "application/json"},
+            data=_json.dumps(payload),
+        )
+        return await r.json() if r.status != 204 else None
 
     # --- Zamówienia ---
 
