@@ -1,9 +1,12 @@
 """
 Ocenia wszystkie dostarczone posiłki ze wszystkich diet na koncie — maksymalna liczba gwiazdek.
-Uruchom: python rate_meals.py
+Uruchom: python rate_meals.py [--inspect]
+  --inspect  wypisz surowy JSON jednego elementu z deliveryMenuMeal[] i zakończ
 """
 
+import argparse
 import asyncio
+import json
 import sys
 from datetime import date
 from playwright.async_api import async_playwright
@@ -24,7 +27,7 @@ def _extract_menu_meal_id(item: dict) -> int | None:
     return int(mid) if mid else None
 
 
-async def run() -> None:
+async def run(inspect: bool = False) -> None:
     today = date.today()
     async with async_playwright() as p:
         client = await DietlyClient.login(p)
@@ -48,9 +51,16 @@ async def run() -> None:
                         errors += 1
                         continue
 
-                    items = [i for i in menu.get("deliveryMenuMeal", []) if _extract_menu_meal_id(i)]
+                    all_items = [i for i in menu.get("deliveryMenuMeal", []) if _extract_menu_meal_id(i)]
+                    items = [i for i in all_items if not i.get("review")]
+                    skipped += len(all_items) - len(items)
                     if not items:
                         continue
+
+                    if inspect:
+                        con.print(f"\n[bold]Surowy JSON pierwszego elementu deliveryMenuMeal[] z dostawy {day}:[/bold]")
+                        con.print(json.dumps(items[0], indent=2, ensure_ascii=False))
+                        return
 
                     con.rule(f"[bold]{day}[/bold]", style="dim")
 
@@ -74,7 +84,7 @@ async def run() -> None:
             con.rule(style="dim")
             con.print(
                 f"[bold green]Oceniono: {rated}[/bold green]   "
-                f"[dim]Pominięto: {skipped}[/dim]   "
+                f"[dim]Już oceniono: {skipped}[/dim]   "
                 f"{'[bold red]' if errors else '[dim]'}Błędy: {errors}{'[/bold red]' if errors else '[/dim]'}"
             )
             if errors:
@@ -84,4 +94,8 @@ async def run() -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(run())
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--inspect", action="store_true",
+                        help="Wypisz surowy JSON jednego elementu deliveryMenuMeal[] i zakończ")
+    args = parser.parse_args()
+    asyncio.run(run(inspect=args.inspect))

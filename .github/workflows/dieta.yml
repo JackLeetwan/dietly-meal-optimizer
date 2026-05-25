@@ -1,0 +1,54 @@
+name: Dieta Pipeline
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # 7:00 CET / 8:00 CEST
+  workflow_dispatch:       # ręczne uruchamianie do testów
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install chromium
+          playwright install-deps chromium
+
+      - name: Create .env
+        run: |
+          cat > .env << 'EOF'
+          OPTIDIET_EMAIL=${{ secrets.OPTIDIET_EMAIL }}
+          OPTIDIET_PASSWORD=${{ secrets.OPTIDIET_PASSWORD }}
+          OPTIDIET_ORDER_ID=${{ secrets.OPTIDIET_ORDER_ID }}
+          OPTIDIET_BODY_WEIGHT_KG=${{ secrets.OPTIDIET_BODY_WEIGHT_KG }}
+          OPTIDIET_PROTEIN_MIN_G_PER_KG=${{ secrets.OPTIDIET_PROTEIN_MIN_G_PER_KG }}
+          OPTIDIET_CALORIES_TARGET=${{ secrets.OPTIDIET_CALORIES_TARGET }}
+          OPTIDIET_CARBS_MIN_G=${{ secrets.OPTIDIET_CARBS_MIN_G }}
+          OPTIDIET_CARBS_TARGET=${{ secrets.OPTIDIET_CARBS_TARGET }}
+          OPTIDIET_FAT_TARGET=${{ secrets.OPTIDIET_FAT_TARGET }}
+          EOF
+
+      - name: Check weekday
+        id: date
+        run: echo "weekday=$(date +%u)" >> "$GITHUB_OUTPUT"
+
+      - name: Wybierz posiłki
+        run: python main.py --all --apply --yes
+
+      - name: Oceń posiłki
+        run: python rate_meals.py
+
+      - name: Oceń zamówienia (tylko poniedziałki)
+        if: steps.date.outputs.weekday == '1'
+        run: python main.py --days 0 --apply --review
