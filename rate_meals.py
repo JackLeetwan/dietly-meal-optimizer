@@ -84,7 +84,7 @@ async def run(inspect: bool = False) -> None:
             con.rule(style="dim")
             con.print(
                 f"[bold green]Oceniono: {rated}[/bold green]   "
-                f"[dim]Już oceniono: {skipped}[/dim]   "
+                f"[dim]Pominięto (miały ocenę): {skipped}[/dim]   "
                 f"{'[bold red]' if errors else '[dim]'}Błędy: {errors}{'[/bold red]' if errors else '[/dim]'}"
             )
             if errors:
