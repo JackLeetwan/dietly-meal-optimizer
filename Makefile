@@ -1,6 +1,6 @@
 PY   = .venv/bin/python
 
-.PHONY: sprawdź wszystko oceń-posiłki oceń-zamówienia
+.PHONY: sprawdź wszystko oceń-posiłki oceń-zamówienia test
 
 sprawdź:
 	read -r -p "Ile dni sprawdzić? [3] " days; \
@@ -17,3 +17,6 @@ oceń-posiłki:
 
 oceń-zamówienia:
 	$(PY) main.py --days 0 --apply --review
+
+test:
+	.venv/bin/pytest tests/ -v
