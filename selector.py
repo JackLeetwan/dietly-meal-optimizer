@@ -78,8 +78,9 @@ def select_best_meal(meals: list[Meal], weights: dict | None = None) -> Optional
     if not meals:
         return None
     allowed = [m for m in meals if not _is_blocked(m)]
-    pool = allowed if allowed else meals
-    return max(pool, key=lambda m: _quality_score(m, weights))
+    if not allowed:
+        return None
+    return max(allowed, key=lambda m: _quality_score(m, weights))
 
 
 def best_for_macro(meals: list[Meal], macro: str, minimize: bool = False) -> Optional[Meal]:
@@ -87,6 +88,7 @@ def best_for_macro(meals: list[Meal], macro: str, minimize: bool = False) -> Opt
     if not meals:
         return None
     allowed = [m for m in meals if not _is_blocked(m)]
-    pool = allowed if allowed else meals
+    if not allowed:
+        return None
     key = lambda m: getattr(m, macro)
-    return min(pool, key=key) if minimize else max(pool, key=key)
+    return min(allowed, key=key) if minimize else max(allowed, key=key)

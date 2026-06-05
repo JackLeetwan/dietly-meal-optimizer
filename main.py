@@ -194,7 +194,14 @@ async def process_delivery(
         return 0
 
     def _pick(weights=None):
-        return [(s, select_best_meal(s.options, weights)) for s in active]
+        result = []
+        for s in active:
+            meal = select_best_meal(s.options, weights)
+            if meal is None:
+                _p(f"  [{s.category}] wszystkie opcje zablokowane — slot pominięty")
+            else:
+                result.append((s, meal))
+        return result
 
     def _sum(chosen):
         t: dict[str, float] = {"calories": 0.0, "protein": 0.0, "carbs": 0.0, "fat": 0.0}
