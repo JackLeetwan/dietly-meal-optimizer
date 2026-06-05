@@ -1,5 +1,7 @@
 # Automatyczny wybór posiłków — OptiDiet
 
+![Tests](https://github.com/JackLeetwan/dietly-meal-optimizer/actions/workflows/test.yml/badge.svg)
+
 Skrypt loguje się do panelu OptiDiet i zamienia posiłki na nadchodzące dni tak, żeby trafić w Twoje cele: dużo białka, dużo węglowodanów, mało tłuszczu.
 
 ---
