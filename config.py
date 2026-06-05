@@ -51,8 +51,8 @@ DAILY_TARGETS = {
 
 # Wagi scoringu — tłuszcz nie jest składnikiem scoringu, ma osobne limity
 SCORE_WEIGHTS = {
-    "carbs":    0.55,
-    "protein":  0.10,
+    "carbs":    0.50,
+    "protein":  0.15,
     "healthy":  0.05,
     "calories": 0.30,
 }
