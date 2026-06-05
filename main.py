@@ -138,7 +138,7 @@ def print_slot_selection(slot: MealSlot, chosen) -> None:
     _log.print(table)
 
 
-def _print_daily_summary(total, pstatus, wstatus, fstatus) -> None:
+def _print_daily_summary(total, pstatus, wstatus, calstatus, fstatus) -> None:
     t = config.DAILY_TARGETS
     fat = total["fat"]
     tbl = Table(title="Suma dzienna", box=box.SIMPLE_HEAD, padding=(0, 2))
@@ -147,8 +147,9 @@ def _print_daily_summary(total, pstatus, wstatus, fstatus) -> None:
     tbl.add_column("Węglowodany (W)", justify="right")
     tbl.add_column("Tłuszcz (T)", justify="right")
 
-    p_col = "[green]OK[/green]" if pstatus == "OK" else f"[red]{escape(pstatus)}[/red]"
-    w_col = "[green]OK[/green]" if wstatus == "OK" else f"[red]{escape(wstatus)}[/red]"
+    p_col   = "[green]OK[/green]" if pstatus   == "OK" else f"[red]{escape(pstatus)}[/red]"
+    w_col   = "[green]OK[/green]" if wstatus   == "OK" else f"[red]{escape(wstatus)}[/red]"
+    cal_col = "[green]OK[/green]" if calstatus == "OK" else f"[red]{escape(calstatus)}[/red]"
     if "PRZEKROCZONO" in fstatus:
         f_col = f"[bold red]{escape(fstatus)}[/bold red]"
     elif "przekroczono" in fstatus:
@@ -157,7 +158,7 @@ def _print_daily_summary(total, pstatus, wstatus, fstatus) -> None:
         f_col = f"[green]{escape(fstatus)}[/green]"
 
     tbl.add_row(
-        f"{total['calories']:.0f} / {t['calories']}",
+        f"{total['calories']:.0f} / {t['calories']}  {cal_col}",
         f"{total['protein']:.1f} / {config.DAILY_MIN_PROTEIN}g  {p_col}",
         f"{total['carbs']:.1f} / {config.CARBS_MIN_G}g  {w_col}",
         f"{fat:.1f}g  {f_col}",
@@ -226,6 +227,14 @@ async def process_delivery(
         _print_greedy_fix(f"↻ greedy fix B ({total['protein']:.0f}→{config.DAILY_MIN_PROTEIN}g):", swaps)
         total = _sum(chosen_by_slot)
 
+    if total["calories"] < config.DAILY_TARGETS["calories"]:
+        chosen_by_slot, swaps = _greedy_fix(
+            chosen_by_slot, "calories", config.DAILY_TARGETS["calories"],
+            protect={"carbs": config.CARBS_MIN_G, "protein": config.DAILY_MIN_PROTEIN},
+        )
+        _print_greedy_fix(f"↻ greedy fix Kcal ({total['calories']:.0f}→{config.DAILY_TARGETS['calories']}):", swaps)
+        total = _sum(chosen_by_slot)
+
     if total["fat"] > config.FAT_SOFT_G:
         chosen_by_slot, swaps = _greedy_fix(
             chosen_by_slot, "fat", config.FAT_SOFT_G, minimize=True,
@@ -245,8 +254,9 @@ async def process_delivery(
     t = config.DAILY_TARGETS
     min_p = config.DAILY_MIN_PROTEIN
     fat = total["fat"]
-    pstatus = "OK" if total["protein"] >= min_p else f"NIEDOBÓR ({min_p - total['protein']:.0f}g)"
-    wstatus = "OK" if total["carbs"]   >= config.CARBS_MIN_G else f"NIEDOBÓR ({config.CARBS_MIN_G - total['carbs']:.0f}g)"
+    pstatus   = "OK" if total["protein"]  >= min_p else f"NIEDOBÓR ({min_p - total['protein']:.0f}g)"
+    wstatus   = "OK" if total["carbs"]    >= config.CARBS_MIN_G else f"NIEDOBÓR ({config.CARBS_MIN_G - total['carbs']:.0f}g)"
+    calstatus = "OK" if total["calories"] >= config.DAILY_TARGETS["calories"] else f"NIEDOBÓR ({config.DAILY_TARGETS['calories'] - total['calories']:.0f} kcal)"
     if fat > config.FAT_HARD_G:
         fstatus = f"⚠ PRZEKROCZONO ({fat - config.FAT_HARD_G:.0f}g ponad limit {config.FAT_HARD_G}g)"
     elif fat > config.FAT_SOFT_G:
@@ -254,7 +264,7 @@ async def process_delivery(
     else:
         fstatus = "OK"
 
-    _print_daily_summary(total, pstatus, wstatus, fstatus)
+    _print_daily_summary(total, pstatus, wstatus, calstatus, fstatus)
 
     if not apply:
         return 0
