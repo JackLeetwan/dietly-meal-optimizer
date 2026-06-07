@@ -32,7 +32,16 @@ def _require_float(name: str, min_val: float = 0.0) -> float:
         raise RuntimeError(f"{name}={result} musi być >= {min_val}")
     return result
 
-MY_ORDER_ID          = _require_int("OPTIDIET_ORDER_ID")
+def _optional_int(name: str) -> int | None:
+    v = (os.getenv(name) or "").strip()
+    if not v or v.startswith("#"):
+        return None
+    try:
+        return int(v)
+    except ValueError:
+        raise RuntimeError(f"{name}={v!r} — oczekiwano liczby całkowitej lub pustej wartości")
+
+MY_ORDER_ID          = _optional_int("OPTIDIET_ORDER_ID")
 BODY_WEIGHT_KG       = _require_float("OPTIDIET_BODY_WEIGHT_KG", min_val=1.0)
 PROTEIN_MIN_G_PER_KG = _require_float("OPTIDIET_PROTEIN_MIN_G_PER_KG", min_val=0.1)
 

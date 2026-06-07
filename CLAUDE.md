@@ -35,13 +35,18 @@ All required `.env` variables (script will fail-fast with a named error if any a
 ```
 OPTIDIET_EMAIL
 OPTIDIET_PASSWORD
-OPTIDIET_ORDER_ID
 OPTIDIET_BODY_WEIGHT_KG
 OPTIDIET_PROTEIN_MIN_G_PER_KG
 OPTIDIET_CALORIES_TARGET
 OPTIDIET_CARBS_MIN_G
 OPTIDIET_CARBS_TARGET
 OPTIDIET_FAT_TARGET
+```
+
+Optional:
+
+```
+OPTIDIET_ORDER_ID   # jeśli pominięte, skrypt wykrywa zamówienie automatycznie po OPTIDIET_CALORIES_TARGET
 ```
 
 ## Architecture

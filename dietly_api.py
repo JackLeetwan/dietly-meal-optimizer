@@ -126,6 +126,28 @@ class DietlyClient:
         order_ids = await self.get_active_order_ids()
         if config.MY_ORDER_ID:
             order_ids = [oid for oid in order_ids if oid == config.MY_ORDER_ID]
+        else:
+            target_cal = config.DAILY_TARGETS["calories"]
+            matched = []
+            for oid in order_ids:
+                o = await self.get_order(oid)
+                if o.get("diet", {}).get("calories") == target_cal:
+                    matched.append((oid, o.get("dateFrom", "")))
+            if not matched:
+                raise RuntimeError(
+                    f"Nie znaleziono aktywnego zamówienia z kalorycznością {target_cal} kcal — "
+                    "ustaw OPTIDIET_ORDER_ID ręcznie w .env"
+                )
+            if len(matched) > 1:
+                matched.sort(key=lambda x: x[1], reverse=True)
+                ids_str = ", ".join(str(i) for i, _ in matched)
+                import logging
+                logging.getLogger(__name__).warning(
+                    "Znaleziono %d zamówień z kalorycznością %d kcal (ID: %s) — "
+                    "wybieram najnowsze (%d). Ustaw OPTIDIET_ORDER_ID żeby wskazać konkretne.",
+                    len(matched), target_cal, ids_str, matched[0][0],
+                )
+            order_ids = [matched[0][0]]
         result = []
         for oid in order_ids:
             order = await self.get_order(oid)

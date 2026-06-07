@@ -304,7 +304,7 @@ async def run(days: int | None, apply: bool, yes: bool, review: bool = False) ->
         _con.print(f"[green]✓[/green] Zalogowano jako [bold]{escape(config.EMAIL)}[/bold]")
         try:
             order_ids = await client.get_active_order_ids()
-            if config.MY_ORDER_ID in order_ids:
+            if config.MY_ORDER_ID and config.MY_ORDER_ID in order_ids:
                 order = await client.get_order(config.MY_ORDER_ID)
                 order_end = order.get("dateTo", "?")
                 _con.print(f"  Zamówienie {config.MY_ORDER_ID} aktywne do {order_end}")
@@ -313,6 +313,9 @@ async def run(days: int | None, apply: bool, yes: bool, review: bool = False) ->
 
             if days != 0:
                 deliveries = await client.get_upcoming_deliveries(days=days)
+                if config.MY_ORDER_ID is None and deliveries:
+                    resolved = deliveries[0]["_orderId"]
+                    _con.print(f"  Zamówienie {resolved} (auto-wykryte, {config.DAILY_TARGETS['calories']} kcal)")
                 if not deliveries:
                     _p(f"Brak dostaw w ciągu {days} dni." if days is not None else "Brak przyszłych dostaw w zamówieniu.")
                 else:
