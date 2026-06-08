@@ -342,7 +342,14 @@ async def run(days: int | None, apply: bool, yes: bool, review: bool = False) ->
                             _pm(f"[green]✓ Ocena 5/5 wystawiona dla zamówienia {oid}[/green]")
                         else:
                             _p(f"  Zamówienie {oid} — ocena już wystawiona, pominięto.")
-                    except (ApiError, PlaywrightError) as e:
+                    except ApiError as e:
+                        if e.status == 490:
+                            _p(f"  Zamówienie {oid} — jeszcze nie rozpoczęte, pominięto.")
+                        else:
+                            _pm(f"  [red]✗ błąd oceny zamówienia {oid}:[/red] {e}")
+                            _log.print_exception()
+                            total_errors += 1
+                    except PlaywrightError as e:
                         _pm(f"  [red]✗ błąd oceny zamówienia {oid}:[/red] {e}")
                         _log.print_exception()
                         total_errors += 1
