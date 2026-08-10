@@ -76,5 +76,7 @@ FAT_HARD_G   = FAT_SOFT_G + 30                         # powyżej: mocne ostrze�
 BLOCKED_KEYWORDS = {
     "zupa", "krem z", "krem ", "rosół", "bulion",
     "smoothie", "koktajl", "shake", "napój",
-    "herbata", "matcha", "sok ", "latte", "cappuccino", "ice tea",
+    "herbata", "herbatka", "matcha", "sok ", "latte", "cappuccino", "ice tea",
+    "barszcz", "chłodnik", "krupnik", "kartoflanka",
+    "żurek", "grochówka", "kapuśniak", "kwaśnica", "gazpacho",
 }
