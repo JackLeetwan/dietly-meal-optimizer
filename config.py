@@ -84,3 +84,25 @@ BLOCKED_KEYWORDS = {
     "barszcz", "chłodnik", "krupnik", "kartoflanka",
     "żurek", "grochówka", "kapuśniak", "kwaśnica", "gazpacho",
 }
+
+# Podzbiór BLOCKED_KEYWORDS, który bywa tylko określeniem smaku dania stałego.
+# Blokuje wyłącznie wtedy, gdy w nazwie nie ma żadnego słowa z DISH_KEYWORDS:
+# "Waniliowa a'la kawa mrożona" → napój, blok;
+# "Deser waniliowy a'la kawa"   → deser o smaku kawowym, przechodzi.
+FLAVOUR_KEYWORDS = {
+    "kawa", "latte", "cappuccino", "matcha",
+}
+
+# Rzeczowniki nazywające danie stałe — neutralizują FLAVOUR_KEYWORDS
+DISH_KEYWORDS = {
+    "deser", "deserek", "sernik", "ciasto", "ciastko", "ciasteczka",
+    "budyń", "pudding", "mus", "owsianka", "jaglanka", "kasza", "ryż",
+    "muffinki", "muffin", "serek", "jogurt", "panna cotta", "tiramisu",
+    "naleśniki", "placki", "placuszki", "gofry", "bułeczka", "croissant",
+    "brownie", "batonik", "kanapka", "sałatka",
+}
+
+assert FLAVOUR_KEYWORDS <= BLOCKED_KEYWORDS, (
+    f"FLAVOUR_KEYWORDS musi być podzbiorem BLOCKED_KEYWORDS; "
+    f"nadmiarowe: {sorted(FLAVOUR_KEYWORDS - BLOCKED_KEYWORDS)}"
+)

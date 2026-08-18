@@ -70,15 +70,25 @@ def score_meal(meal: Meal) -> float:
     return _quality_score(meal)
 
 
-# Dopasowanie po granicy wyrazu, żeby "kawa" nie łapało "kawałki",
-# a "koktajl" — "sosem koktajlowym". Frazy wieloczłonowe działają bez zmian.
-_BLOCKED_RE = re.compile(
-    r"\b(?:" + "|".join(re.escape(kw) for kw in sorted(config.BLOCKED_KEYWORDS)) + r")\b"
-)
+def _word_re(words: set[str]) -> re.Pattern:
+    """Alternatywa dopasowywana po całych słowach (\\b), z grupą przechwytującą."""
+    return re.compile(r"\b(" + "|".join(re.escape(w) for w in sorted(words)) + r")\b")
+
+
+# Granica wyrazu, żeby "kawa" nie łapało "kawałki", a "koktajl" — "sosem koktajlowym".
+_BLOCKED_RE = _word_re(config.BLOCKED_KEYWORDS)
+_DISH_RE = _word_re(config.DISH_KEYWORDS)
 
 
 def _is_blocked(meal: Meal) -> bool:
-    return bool(_BLOCKED_RE.search(meal.name.lower()))
+    name = meal.name.lower()
+    hits = set(_BLOCKED_RE.findall(name))
+    if not hits:
+        return False
+    # Same określenia smaku przy nazwie dania stałego to nie napój
+    if hits <= config.FLAVOUR_KEYWORDS and _DISH_RE.search(name):
+        return False
+    return True
 
 
 def select_best_meal(meals: list[Meal], weights: dict | None = None) -> Optional[Meal]:
