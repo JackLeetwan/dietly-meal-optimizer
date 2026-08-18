@@ -10,6 +10,7 @@ Zasady scoringu:
   5. Bonus za warzywa i zdrowe składniki
 """
 
+import re
 from dataclasses import dataclass, field
 from typing import Optional
 import config
@@ -69,9 +70,15 @@ def score_meal(meal: Meal) -> float:
     return _quality_score(meal)
 
 
+# Dopasowanie po granicy wyrazu, żeby "kawa" nie łapało "kawałki",
+# a "koktajl" — "sosem koktajlowym". Frazy wieloczłonowe działają bez zmian.
+_BLOCKED_RE = re.compile(
+    r"\b(?:" + "|".join(re.escape(kw) for kw in sorted(config.BLOCKED_KEYWORDS)) + r")\b"
+)
+
+
 def _is_blocked(meal: Meal) -> bool:
-    name = meal.name.lower()
-    return any(kw in name for kw in config.BLOCKED_KEYWORDS)
+    return bool(_BLOCKED_RE.search(meal.name.lower()))
 
 
 def select_best_meal(meals: list[Meal], weights: dict | None = None) -> Optional[Meal]:

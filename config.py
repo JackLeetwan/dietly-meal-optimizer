@@ -72,12 +72,15 @@ CARBS_MIN_G  = _require_int("OPTIDIET_CARBS_MIN_G")   # twarde minimum węglowod
 FAT_SOFT_G   = _require_int("OPTIDIET_FAT_TARGET")     # powyżej: greedy fix próbuje zejść niżej
 FAT_HARD_G   = FAT_SOFT_G + 30                         # powyżej: mocne ostrzeżenie w logu
 
-# Posiłki z tymi słowami w nazwie są odrzucane przed scoringiem (płynne/zupowe dania)
+# Posiłki z tymi słowami w nazwie są odrzucane przed scoringiem (płynne/zupowe dania).
+# Dopasowanie po całych słowach (\b) — "kawa" nie łapie "kawałki", "koktajl" nie łapie
+# "sosem koktajlowym". Odmiany są celowo pomijane: "nutą kawy", "na napoju owsianym"
+# i "Kawowa owsianka" to normalne dania, nie napoje.
 BLOCKED_KEYWORDS = {
-    "zupa", "krem z", "krem ", "rosół", "bulion",
+    "zupa", "krem", "rosół", "bulion",
     "smoothie", "koktajl", "shake", "napój",
-    "herbata", "herbatka", "matcha", "sok ", "latte", "cappuccino", "ice tea",
-    "kawa mrożona", "mrożona kawa", "a'la kawa", "frappe", "cold brew",
+    "herbata", "herbatka", "matcha", "sok", "latte", "cappuccino", "ice tea",
+    "kawa", "frappe", "cold brew",
     "barszcz", "chłodnik", "krupnik", "kartoflanka",
     "żurek", "grochówka", "kapuśniak", "kwaśnica", "gazpacho",
 }
