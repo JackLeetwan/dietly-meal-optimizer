@@ -77,6 +77,7 @@ BLOCKED_KEYWORDS = {
     "zupa", "krem z", "krem ", "rosół", "bulion",
     "smoothie", "koktajl", "shake", "napój",
     "herbata", "herbatka", "matcha", "sok ", "latte", "cappuccino", "ice tea",
+    "kawa mrożona", "mrożona kawa", "a'la kawa", "frappe", "cold brew",
     "barszcz", "chłodnik", "krupnik", "kartoflanka",
     "żurek", "grochówka", "kapuśniak", "kwaśnica", "gazpacho",
 }
