@@ -51,3 +51,12 @@ jobs:
       - name: Oceń zamówienia (tylko poniedziałki)
         if: steps.date.outputs.weekday == '1'
         run: python main.py --days 0 --apply --review
+
+      - name: Zachowaj logi
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logi-${{ github.run_id }}
+          path: logs/
+          retention-days: 90
+          if-no-files-found: warn
