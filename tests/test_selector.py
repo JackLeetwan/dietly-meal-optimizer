@@ -13,6 +13,8 @@ BLOCKED = [
     meal("Koktajl truskawkowy"),
     meal("Zupa pomidorowa"),
     meal("Smoothie bananowe"),
+    meal("Mango lassi z kardamonem"),
+    meal("Odżywczy koktajl z jabłkiem"),
 ]
 
 MIXED = [
