@@ -288,7 +288,14 @@ async def process_delivery(
             )
             _pm(f"  [{escape(slot.category)}] [green]✓ zapisano[/green] → {meal.name[:55]}")
             changed += 1
-        except (ApiError, PlaywrightError) as e:
+        except ApiError as e:
+            if e.status == 490:
+                _p(f"  ⏸ [{slot.category}] zapis zablokowany — pomijam resztę dnia")
+                break
+            _pm(f"  [{escape(slot.category)}] [red]✗ błąd zapisu:[/red] {e}")
+            _log.print_exception()
+            errors += 1
+        except PlaywrightError as e:
             _pm(f"  [{escape(slot.category)}] [red]✗ błąd zapisu:[/red] {e}")
             _log.print_exception()
             errors += 1

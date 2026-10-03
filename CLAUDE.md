@@ -70,6 +70,6 @@ selector.py      — meal scoring and selection logic; no I/O
 
 ## Key constraints
 
-- API HTTP 490 = delivery locked (too close to delivery date) — not an error, shown as `⏸`.
+- API HTTP 490 = delivery locked (too close to delivery date, or switching not yet open) — not an error, shown as `⏸`. Applies both to fetching switch-options and to the PUT; on a PUT 490 the remaining slots of that delivery are skipped.
 - `OPTIDIET_ORDER_ID` scopes all calls to a single order. Without it the script would touch all active orders.
 - Delivery data comes from `GET /company/customer/order/{id}` which returns the full order including all deliveries; `get_upcoming_deliveries()` filters client-side.
