@@ -78,7 +78,7 @@ FAT_HARD_G   = FAT_SOFT_G + 30                         # powyżej: mocne ostrze�
 # i "Kawowa owsianka" to normalne dania, nie napoje.
 BLOCKED_KEYWORDS = {
     "zupa", "krem", "rosół", "bulion",
-    "smoothie", "koktajl", "shake", "napój", "lassi",
+    "smoothie", "koktajl", "shake", "napój", "lassi", "maślanka",
     "herbata", "herbatka", "matcha", "sok", "latte", "cappuccino", "ice tea",
     "kawa", "frappe", "cold brew",
     "barszcz", "chłodnik", "krupnik", "kartoflanka",
