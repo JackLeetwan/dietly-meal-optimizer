@@ -37,6 +37,15 @@ _H = {
     "x-launcher-type": "BROWSER_PANEL",
     "accept": "application/json",
 }
+_XSRF_COOKIE = "XSRF-TOKEN"
+
+
+async def _with_xsrf(ctx: APIRequestContext, headers: dict) -> dict:
+    """Dokłada X-XSRF-TOKEN z ciastka — backend odrzuca POST/PUT bez niego (HTTP 403).
+    Token czytany przy każdym żądaniu, bo serwer może go zrotować po zalogowaniu."""
+    state = await ctx.storage_state()
+    token = next((c["value"] for c in state["cookies"] if c["name"] == _XSRF_COOKIE), None)
+    return {**headers, "x-xsrf-token": token} if token else headers
 
 
 @dataclass
@@ -61,10 +70,12 @@ class DietlyClient:
         ctx = await playwright.request.new_context()
         for attempt in range(_RETRIES):
             try:
+                # GET na endpoint logowania ustawia ciastko XSRF-TOKEN (odpowiedź 401 jest oczekiwana)
+                await ctx.get(f"{API}/auth/login", headers=_H, timeout=60000)
                 r = await ctx.post(
                     f"{API}/auth/login",
                     form={"username": config.EMAIL, "password": config.PASSWORD},
-                    headers=_H,
+                    headers=await _with_xsrf(ctx, _H),
                     timeout=60000,
                 )
                 if r.ok:
@@ -83,6 +94,8 @@ class DietlyClient:
         headers = kwargs.pop("headers", _H)
         for attempt in range(_RETRIES):
             try:
+                if method != "get":
+                    headers = await _with_xsrf(self._ctx, headers)
                 r = await getattr(self._ctx, method)(url, headers=headers, timeout=60000, **kwargs)
                 if r.ok:
                     return r
